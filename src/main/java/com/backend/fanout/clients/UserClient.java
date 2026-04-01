@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 
-import com.backend.core.exceptions.ServiceUnavailableException;
-
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
+
+import com.backend.fanout.exceptions.ServiceUnavailableException;
 
 @Component
 public class UserClient {
