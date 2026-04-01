@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: newsfeed-fanout
+  kafka:
+    # pods in eks uses IRSA to talk to MSK cluster
+    security:
+      protocol: SASL_SSL
+      properties:
+        sasl.mechanism: AWS_MSK_IAM
+        sasl.jaas.config: software.amazon.msk.auth.iam.IAMLoginModule required;
+        sasl.client.callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
+    consumer:
+      group-id: graph-projector
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+        max.poll.records: 100
+        max.poll.interval.ms: 300000
+
+kafka-properties:
+  topics:
+    post-created: postCreated
+    post-deleted: postDeleted
+    friend-blocked: blocks
+    dead-letter-queue: fanoutDeadLetters
+
+services:
+  users: ${USERS_SERVICE_URL:http://localhost:8090}
+
+newsfeed:
+  max-feed-size: 800
+  feed-ttl-seconds: 2592000
+
+logging:
+  level:
+    com.backend.fanout: DEBUG
+    org.springframework.data.redis: DEBUG
+    reactor.kafka: INFO
